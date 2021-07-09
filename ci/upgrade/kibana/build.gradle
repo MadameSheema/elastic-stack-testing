@@ -168,3 +168,4 @@ task run_kibana_tests(dependsOn: get_kibana_commit) {
             }
         }
     }
+}
