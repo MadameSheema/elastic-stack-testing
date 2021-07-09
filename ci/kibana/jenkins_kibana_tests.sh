@@ -3374,7 +3374,7 @@ case "$TEST_GROUP" in
     run_upgrade_tests
     ;;
   upgrade_security_solution)
-    run_upgrade_security_solution_tests
+    run_security_solution_upgrade_tests
     ;;
   selenium)
     run_basic_tests
