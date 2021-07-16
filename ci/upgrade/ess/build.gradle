@@ -321,8 +321,8 @@ security_solution_upgrade_tests.dependsOn ess_disable_saml_login
 tasks.getByPath(':kibana:run_security_solution_tests').onlyIf {
     final_version_7_12_0_later >= 0
 }
-tasks.getByPath(':kibana:run_security_solution_tests')
-security_solution_upgrade_tests
+tasks.getByPath(':kibana:run_security_solution_tests').finalizedBy ess_shutdown_deployment
+security_solution_upgrade_tests.finalizedBy ess_shutdown_deployment
 
 
 
