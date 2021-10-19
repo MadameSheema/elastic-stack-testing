@@ -18,6 +18,8 @@ import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+import org.estf.gradle.rest.FieldsLimitMappingIncrease;
+import org.estf.gradle.rest.Instance;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
@@ -64,9 +66,9 @@ public class UploadSecuritySolutionData extends DefaultTask {
         RestApi api = new RestApi(username, password, version, upgradeVersion);
         int majorVersion = api.setMajorVersion();
         if (majorVersion > 6) {
-            createsSiemSignalsIndex();
-            createsDetectionRule();
-            createsAuditbeatIndex();
+           //createsSiemSignalsIndex();
+           //createsDetectionRule();
+           // createsAuditbeatIndex();
             increasesNumberOfFieldsLimitForMapping();
             createsAuditbeatMapping();
             createsDocumentToGenerateAlert();
@@ -156,29 +158,9 @@ public class UploadSecuritySolutionData extends DefaultTask {
     }
 
     public void increasesNumberOfFieldsLimitForMapping() throws IOException, InterruptedException {
-        String creds = username + ":" + password;
-        String basicAuthPayload = "Basic " + Base64.getEncoder().encodeToString(creds.getBytes());
-        for (int retries = 0; ; retries++) {
-            String jsonstr = "{\"index.mapping.total_fields.limit\":2000}";
-            StringEntity entity = new StringEntity(jsonstr);
-            entity.setContentType(ContentType.APPLICATION_JSON.getMimeType());
-            HttpPut putRequest = new HttpPut(esBaseUrl + "/auditbeat-upgrade-1/_settings");
-            putRequest.setHeader(HttpHeaders.AUTHORIZATION, basicAuthPayload);
-            putRequest.setEntity(entity);
-            HttpClient client = HttpClientBuilder.create().build();
-            HttpResponse response = client.execute(putRequest);
-            int statusCode = response.getStatusLine().getStatusCode();
-            System.out.println(statusCode);
-            if (statusCode == 200) {
-                break;
-            }
-            if (retries < MAX_RETRIES) {
-                System.out.println("** Retrying to increate the number of fields limit in mapping **");
-                Thread.sleep(5000);
-            } else {
-                throw new IOException("Failed to increate the number of fields limit in mapping");
-            }
-        }
+        Instance instance = new Instance(username, password, esBaseUrl, kbnBaseUrl);
+        FieldsLimitMappingIncrease endpoint = new FieldsLimitMappingIncrease(instance, "auditbeat-upgrade-1");
+        endpoint.sendPutRequest();
     }
 
     public void createsAuditbeatMapping() throws IOException, InterruptedException {
